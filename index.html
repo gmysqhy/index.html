@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>端午节安康 动态贺卡</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: "微软雅黑", sans-serif;
+            /* 端午青绿古风背景 */
+            background: linear-gradient(160deg, #1a6b4b, #27966e);
+        }
+
+        .card-wrap {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* 页面样式+翻页动画 */
+        .page {
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.92);
+            transition: all 0.7s ease;
+        }
+
+        .page.active {
+            display: flex;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* 古风磨砂卡片 */
+        .box {
+            background: rgba(255, 255, 255, 0.35);
+            border-radius: 24px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 40px rgba(0, 60, 30, 0.2);
+        }
+
+        /* 动态图标弹跳 */
+        .icon {
+            font-size: 72px;
+            margin-bottom: 20px;
+            animation: bounce 1.4s infinite alternate;
+        }
+
+        @keyframes bounce {
+            0% {
+                transform: translateY(0) scale(1);
+            }
+
+            100% {
+                transform: translateY(-12px) scale(1.08);
+            }
+        }
+
+        .title {
+            font-size: 30px;
+            color: #0f4e38;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .text {
+            font-size: 18px;
+            color: #145c42;
+            line-height: 2.3;
+        }
+
+        /* 左右翻页点击区 */
+        .left-btn,
+        .right-btn {
+            position: absolute;
+            top: 0;
+            width: 50vw;
+            height: 100vh;
+            z-index: 10;
+        }
+
+        .left-btn {
+            left: 0;
+        }
+
+        .right-btn {
+            right: 0;
+        }
+
+        .tip {
+            position: absolute;
+            bottom: 35px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-size: 14px;
+            z-index: 20;
+            opacity: 0.9;
+        }
+
+        /* 飘落动画：粽叶、粽子、艾草 */
+        .fall {
+            position: absolute;
+            top: -8%;
+            font-size: 26px;
+            opacity: 0.75;
+            z-index: 1;
+            animation: fallMove linear infinite;
+        }
+
+        @keyframes fallMove {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        /* 浮动祥云星星 */
+        .float {
+            position: absolute;
+            font-size: 28px;
+            z-index: 1;
+            opacity: 0.7;
+            animation: floatMove 5s ease-in-out infinite;
+        }
+
+        @keyframes floatMove {
+
+            0%,
+            100% {
+                transform: translateY(0) translateX(0);
+            }
+
+            50% {
+                transform: translateY(-25px) translateX(15px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card-wrap">
+        <!-- 第1页 -->
+        <div class="page active">
+            <div class="box">
+                <div class="icon">🌿</div>
+                <div class="title">端午安康</div>
+                <div class="text">
+                    粽叶飘香 岁岁端阳<br>
+                    清风送福 万事吉祥<br>
+                    愿家人平安<br>
+                    四季无忧 岁岁安康
+                </div>
+            </div>
+        </div>
+
+        <!-- 第2页 -->
+        <div class="page">
+            <div class="box">
+                <div class="icon">🍙</div>
+                <div class="title">端午食粽</div>
+                <div class="text">
+                    一颗香粽 一份牵挂<br>
+                    一缕艾草 一世平安<br>
+                    愿生活甜甜美美<br>
+                    日子温柔向阳而生
+                </div>
+            </div>
+        </div>
+
+        <!-- 第3页 -->
+        <div class="page">
+            <div class="box">
+                <div class="icon">🐉</div>
+                <div class="title">龙舟祈福</div>
+                <div class="text">
+                    龙舟竞渡 破浪前行<br>
+                    菖蒲艾草 守护安宁<br>
+                    愿往后余生<br>
+                    事事顺心 阖家幸福
+                </div>
+            </div>
+        </div>
+
+        <!-- 点击翻页层 -->
+        <div class="left-btn" id="prev"></div>
+        <div class="right-btn" id="next"></div>
+
+        <!-- 提示文字 -->
+        <div class="tip">👈 点左翻上一页 &nbsp;&nbsp; 点右翻下一页 👉</div>
+    </div>
+
+    <script>
+        // 翻页逻辑
+        let pages = document.querySelectorAll('.page');
+        let cur = 0;
+        let total = pages.length;
+
+        function showPage() {
+            pages.forEach(p => p.classList.remove('active'));
+            pages[cur].classList.add('active');
+        }
+
+        document.getElementById('prev').onclick = function () {
+            cur--;
+            if (cur < 0) cur = total - 1;
+            showPage();
+        }
+        document.getElementById('next').onclick = function () {
+            cur++;
+            if (cur >= total) cur = 0;
+            showPage();
+        }
+
+        // 动态飘落元素 粽叶/粽子/艾草/龙舟
+        let fallEmoji = ['🌿', '🍙', '🌱', '🎋', '🐉'];
+        function createFall() {
+            let el = document.createElement('div');
+            el.className = 'fall';
+            el.innerText = fallEmoji[Math.floor(Math.random() * fallEmoji.length)];
+            el.style.left = Math.random() * 100 + 'vw';
+            el.style.animationDuration = (Math.random() * 4 + 3) + 's';
+            document.querySelector('.card-wrap').appendChild(el);
+            setTimeout(() => el.remove(), 7000);
+        }
+        setInterval(createFall, 400);
+
+        // 浮动祥云星星
+        let floatEmoji = ['☁️', '✨', '⭐'];
+        function createFloat() {
+            let el = document.createElement('div');
+            el.className = 'float';
+            el.innerText = floatEmoji[Math.floor(Math.random() * floatEmoji.length)];
+            el.style.left = Math.random() * 95 + 'vw';
+            el.style.top = Math.random() * 85 + 'vh';
+            el.style.animationDelay = Math.random() * 2 + 's';
+            document.querySelector('.card-wrap').appendChild(el);
+        }
+        // 初始化生成浮动元素
+        for (let i = 0; i < 10; i++) createFloat();
+    </script>
+</body>
+
+</html>
